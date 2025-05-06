@@ -1,0 +1,11 @@
+{
+    "@context": "https://example.org/context",
+    "@type": "Shipment",
+    "@id": "urn:1r-micro:shipment123",
+    "consignment": {
+      "@id": "http://127.0.0.1:5001/objects/urn:1r-micro-1:urn:1r-micro:consignment456"
+    },
+    "origin": "JFK",
+    "destination": "FRA"
+  }
+  

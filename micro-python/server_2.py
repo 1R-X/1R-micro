@@ -7,6 +7,6 @@ app.register_blueprint(api)
 if __name__ == "__main__":
     app.run(
         host="0.0.0.0",   # Listen on all interfaces
-        port=5010,        # Default port
+        port=5002,        # Default port
         debug=True        # Enable auto-reload and error logs
     )

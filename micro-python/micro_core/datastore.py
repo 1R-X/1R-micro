@@ -1,16 +1,19 @@
 import os
 import json
+import uuid
+import yaml
 
-# Default folder for object storage
-OBJECT_STORE_PATH = os.path.join(os.path.dirname(__file__), '..', 'object_store')
+
+# Load config
+CONFIG_PATH = os.environ.get("CONFIG_PATH", os.path.join(os.path.dirname(__file__), '..', 'config.yaml'))
+with open(CONFIG_PATH, 'r') as f:
+    config = yaml.safe_load(f)
+
+OBJECT_STORE_PATH = config.get("store_path", os.path.join(os.path.dirname(__file__), '..', 'object_store'))
+BASE_URI = config.get("base_uri", "urn:1r-micro")
 
 # Ensure storage folder exists
 os.makedirs(OBJECT_STORE_PATH, exist_ok=True)
-
-def object_exists(object_id):
-    """Check if an object file already exists."""
-    path = _get_object_path(object_id)
-    return os.path.exists(path)
 
 def _get_object_path(object_id):
     """Convert an object ID into a filename."""
@@ -40,6 +43,12 @@ def get_object_by_id(object_id):
 
 def save_object(obj):
     """Save a new or updated object."""
+    # Normalize @id
+    if "@id" not in obj:
+        obj["@id"] = f"{BASE_URI}:{uuid.uuid4()}"
+    elif not obj["@id"].startswith(BASE_URI):
+        obj["@id"] = f"{BASE_URI}:{obj['@id']}"
+
     object_id = obj["@id"]
     path = _get_object_path(object_id)
     with open(path, "w") as f:
@@ -47,9 +56,14 @@ def save_object(obj):
     return obj
 
 def delete_object(object_id):
-    """Delete an object file by its ID."""
+    """Delete an object by @id."""
     path = _get_object_path(object_id)
     if os.path.exists(path):
         os.remove(path)
         return True
     return False
+
+def object_exists(object_id):
+    """Check if object exists by ID."""
+    path = _get_object_path(object_id)
+    return os.path.exists(path)

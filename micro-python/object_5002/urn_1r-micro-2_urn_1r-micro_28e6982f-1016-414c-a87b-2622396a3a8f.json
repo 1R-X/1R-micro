@@ -1,0 +1,6 @@
+{
+  "@context": "https://example.org/context",
+  "@id": "urn:1r-micro-2:urn:1r-micro:28e6982f-1016-414c-a87b-2622396a3a8f",
+  "@type": "Updatable",
+  "value": 10
+}
