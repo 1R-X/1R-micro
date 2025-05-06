@@ -1,8 +1,8 @@
-# 1R-Micro
+# 1R-micro
 
 **A minimal, embeddable, federated object engine for semantic data exchange.**
 
-1R-Micro is the core reference implementation of the 1R-X ecosystem — an open, lightweight, and extensible framework for creating, linking, and exchanging semantically meaningful objects across domains.
+1R-micro is the core reference implementation of the 1R-X ecosystem — an open, lightweight, and extensible framework for creating, linking, and exchanging semantically meaningful objects across domains.
 
 Whether you're building air cargo platforms, environmental sensor networks, digital twin systems, or scientific data logs, 1R-Micro gives you a portable, JSON-LD-native object store and REST API to model, share, and orchestrate real-world entities.
 
