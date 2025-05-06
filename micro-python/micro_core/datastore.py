@@ -7,6 +7,11 @@ OBJECT_STORE_PATH = os.path.join(os.path.dirname(__file__), '..', 'object_store'
 # Ensure storage folder exists
 os.makedirs(OBJECT_STORE_PATH, exist_ok=True)
 
+def object_exists(object_id):
+    """Check if an object file already exists."""
+    path = _get_object_path(object_id)
+    return os.path.exists(path)
+
 def _get_object_path(object_id):
     """Convert an object ID into a filename."""
     clean_id = object_id.replace(":", "_").replace("/", "_")
@@ -40,3 +45,11 @@ def save_object(obj):
     with open(path, "w") as f:
         json.dump(obj, f, indent=2)
     return obj
+
+def delete_object(object_id):
+    """Delete an object file by its ID."""
+    path = _get_object_path(object_id)
+    if os.path.exists(path):
+        os.remove(path)
+        return True
+    return False

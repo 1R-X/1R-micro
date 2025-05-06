@@ -31,3 +31,21 @@ def create_object():
 
     saved = datastore.save_object(obj)
     return jsonify(saved), 201
+
+@api.route("/objects/<object_id>", methods=["PUT"])
+def update_object(object_id):
+    if not datastore.object_exists(object_id):
+        return jsonify({"error": "Object not found"}), 404
+
+    updated_obj = request.get_json(force=True)
+    updated_obj["@id"] = object_id
+    saved = datastore.save_object(updated_obj)
+    return jsonify(saved), 200
+
+@api.route("/objects/<object_id>", methods=["DELETE"])
+def delete_object(object_id):
+    success = datastore.delete_object(object_id)
+    if success:
+        return jsonify({"message": "Deleted"}), 200
+    else:
+        return jsonify({"error": "Object not found"}), 404
