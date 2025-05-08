@@ -3,6 +3,9 @@ import json
 
 # Fake in-memory auth context for now
 def get_requesting_entity():
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.lower().startswith("bearer "):
+        return auth_header[7:].strip()
     return request.headers.get("X-Entity", "public")
 
 
