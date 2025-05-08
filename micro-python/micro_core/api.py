@@ -1,12 +1,22 @@
-from flask import Blueprint, request, jsonify, current_app as app
+from flask import send_from_directory, Blueprint, request, jsonify, current_app as app
 from micro_core import datastore, utils
 import uuid
+import os
 
 api = Blueprint('api', __name__)
 
 @api.route("/", methods=["GET"])
 def index():
     return "Hello from 1R-Micro (Python)"
+
+@api.route("/v1", methods=["GET"])
+def index_v1():
+    return "Hello from 1R-Micro (Python) - version 1"
+
+@api.route("/frontend", methods=["GET"])
+def serve_frontend():
+    frontend_dir = os.path.join(os.path.dirname(__file__), "../static")
+    return send_from_directory(frontend_dir, "index.html")
 
 @api.route("/v1/objects", methods=["GET"])
 def get_all_objects():
@@ -27,6 +37,8 @@ def get_object(object_id):
 
     return jsonify(utils.redact_object_for(entity, obj)), 200
 
+from datetime import datetime
+
 @api.route("/v1/objects", methods=["POST"])
 def create_object():
     try:
@@ -42,10 +54,24 @@ def create_object():
             return jsonify({"error": "Entity mismatch"}), 403
 
         saved = datastore.save_object(obj)
+
+        # Emit a "created" event
+        event = {
+            "@type": "Event",
+            "eventType": "created",
+            "object": saved["@id"],
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "entity": caller
+        }
+        datastore.save_event(event)
+        utils.publish_event(event)
+
         return jsonify(saved), 201
+
     except Exception as e:
         app.logger.error(f"Error creating object: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
+
 
 @api.route("/v1/objects/<object_id>", methods=["PUT"])
 def update_object(object_id):
@@ -129,6 +155,12 @@ def delete_subscription(sub_id):
     success = datastore.delete_subscription(sub_id)
     return jsonify({"message": "Deleted"}) if success else jsonify({"error": "Delete failed"}), 500
 
+@api.route("/webhook", methods=["POST"])
+def test_webhook():
+    data = request.get_json(force=True)
+    print("[webhook] Received event:")
+    print(json.dumps(data, indent=2))
+    return jsonify({"message": "Webhook received"}), 200
 
 @api.route("/v1/whoami", methods=["GET"])
 def whoami():

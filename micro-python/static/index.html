@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>1R-Micro API Test Page</title>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 2rem; }
+    input, textarea { width: 100%; padding: 0.5rem; margin-bottom: 1rem; }
+    button { padding: 0.5rem 1rem; margin-bottom: 1rem; }
+    pre { background: #f0f0f0; padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+
+  <h1>🔧 1R-Micro API Tester</h1>
+
+  <label>Bearer Token (optional):</label>
+  <input id="token" placeholder="acme">
+
+  <label>Object ID (for GET, PUT, PATCH, DELETE):</label>
+  <input id="objectId" placeholder="urn:1r-micro:...">
+
+  <label>Object JSON:</label>
+  <textarea id="objectBody" rows="5">{
+  "@type": "Test",
+  "value": 123,
+  "entity": "acme"
+}</textarea>
+
+  <button onclick="apiCall('POST', '/v1/objects')">POST /objects</button>
+  <button onclick="apiCall('GET', '/v1/objects')">GET /objects</button>
+  <button onclick="apiCall('GET', '/v1/objects/' + getId())">GET /objects/&lt;id&gt;</button>
+  <button onclick="apiCall('PUT', '/v1/objects/' + getId())">PUT /objects/&lt;id&gt;</button>
+  <button onclick="apiCall('PATCH', '/v1/objects/' + getId())">PATCH /objects/&lt;id&gt;</button>
+  <button onclick="apiCall('DELETE', '/v1/objects/' + getId())">DELETE /objects/&lt;id&gt;</button>
+  <button onclick="apiCall('GET', '/v1/objects/' + getId() + '/render?format=md')">RENDER /objects/&lt;id&gt;</button>
+
+  <hr>
+
+  <label>Subscription JSON:</label>
+  <textarea id="subBody" rows="5">{
+  "target": "http://localhost:8080/hook",
+  "filter": { "@type": "SensorReading" },
+  "events": ["created"]
+}</textarea>
+  <button onclick="apiCall('POST', '/v1/subscriptions', 'subBody')">POST /subscriptions</button>
+  <button onclick="apiCall('GET', '/v1/subscriptions')">GET /subscriptions</button>
+  <button onclick="apiCall('DELETE', '/v1/subscriptions/' + getId())">DELETE /subscriptions/&lt;id&gt;</button>
+
+  <hr>
+
+  <label>Event JSON:</label>
+  <textarea id="eventBody" rows="5">{
+  "@type": "Event",
+  "eventType": "arrivedAtGate",
+  "object": "urn:1r-micro:abc123",
+  "timestamp": "2025-05-08T16:45:00Z"
+}</textarea>
+  <button onclick="apiCall('POST', '/v1/events', 'eventBody')">POST /events</button>
+
+  <hr>
+
+  <button onclick="apiCall('GET', '/v1/whoami')">GET /whoami</button>
+
+  <h3>📄 Response:</h3>
+  <pre id="result">Click a button to see the result here.</pre>
+
+  <script>
+    function getId() {
+      return document.getElementById("objectId").value.trim();
+    }
+
+    function apiCall(method, path, bodyField = 'objectBody') {
+      const token = document.getElementById("token").value.trim();
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = "Bearer " + token;
+
+      const options = { method, headers };
+
+      if (["POST", "PUT", "PATCH"].includes(method)) {
+        try {
+          options.body = document.getElementById(bodyField).value;
+        } catch {
+          return alert("Missing body field: " + bodyField);
+        }
+      }
+
+      fetch(path, options)
+        .then(async res => {
+          const text = await res.text();
+          document.getElementById("result").textContent =
+            `Status: ${res.status} ${res.statusText}\n\n` + text;
+        })
+        .catch(err => {
+          document.getElementById("result").textContent = "Error: " + err;
+        });
+    }
+  </script>
+
+</body>
+</html>
