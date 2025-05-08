@@ -1,8 +1,12 @@
+Here's the updated **1R-Micro – Project Status Summary (as of May 2025)**, reflecting the latest developments such as event handling, pub-sub, token simulation, a test frontend, and webhook support:
+
+---
+
 # 1R-Micro – Project Status Summary (as of May 2025)
 
 ## ✅ Status Summary
 
-The 1R-Micro project has reached a stable and functional baseline. It now delivers a minimal, embeddable, and federated semantic object server built in Python, with all core features in place and a foundation for growth.
+The 1R-Micro project has reached a robust and usable foundation. It delivers a minimal, embeddable, and federated semantic object server with multi-entity access control, event-driven extensions, and a developer-friendly REST API. A browser-based test UI and local webhook handler are now included.
 
 ---
 
@@ -11,74 +15,84 @@ The 1R-Micro project has reached a stable and functional baseline. It now delive
 ### 🔧 Core Features
 
 * **Modular architecture** with `micro_core/` for logic, `server.py` for entry point
-* **Full REST API** supporting:
 
-  * `GET /objects`, `GET /objects/<id>`
-  * `POST /objects`, `PUT /objects/<id>`, `DELETE /objects/<id>`
-* **JSON-LD object handling** with normalized `@id` generation
-* **File-based object store** in `object_store/`
-* **Environment-configurable settings** via `config.yaml`
+* **Full REST API** with versioning (`/v1/`) supporting:
 
-  * Custom `store_path`, `base_uri`, `default_context`
+  * `GET`, `POST`, `PUT`, `PATCH`, and `DELETE` on `/v1/objects`
+  * `GET /v1/objects/<id>/render` for Markdown/HTML/ASCII views
 
-### 🧪 Tests
+* **JSON-LD object support** with:
 
-* `tests/test_api.py` to validate endpoint behavior
-* `tests/test_store.py` to validate datastore logic independently
+  * Normalized `@id` generation (`urn:1r-micro:<uuid>`)
+  * `@context`, `@type`, `linkedTo`, and custom fields
 
-### 🔄 Federation
+* **Field-level access control**:
 
-* `peers.yaml` defines known peers
-* `sync.py` enables:
+  * Redaction via `_privateFields`
+  * Visibility (`public`, `sharedWith`)
+  * Entity-matching via simulated bearer token
 
-  * `pull_from_peer(peer_url)` and `push_to_peer(peer_url)`
-  * `pull_all()` and `push_all()` across configured peers
-* Tested multi-node setup with custom config and port separation
+* **Static frontend UI** (`/frontend`) with interactive browser testing
 
-### 📁 Repo Organization
+* **Simple simulated token system** via `Authorization: Bearer <entity>`
 
-* `examples/` for future sample data
-* `docs/architecture.md`, `CONTRIBUTING.md`, and `README.md`
-* Clean `.gitignore`, `LICENSE`, and structure suitable for growth
+---
+
+### 🪝 Events & Pub/Sub
+
+* `POST /v1/events` for domain events referencing objects
+* `POST /v1/subscriptions` to register filters and event types
+* `GET /v1/subscriptions` to list subscriptions
+* `DELETE /v1/subscriptions/<id>` to remove them
+* **Webhook delivery**:
+
+  * Local `/webhook` endpoint built in for testing
+  * Filtered events trigger matching subscriptions automatically
+
+---
+
+### 🧪 Testing & Dev Tools
+
+* Local browser testing via frontend + DevTools
+* `utils.py` for redaction, auth, rendering, and pub/sub utilities
+* `datastore.py` includes read/write for objects, events, and subscriptions
+* `config.yaml` supports custom store path and base URI
+* `openapi.json` auto-generated for schema-aware tooling
 
 ---
 
 ## 🚀 Next Steps
 
-### 🔧 Stability and Developer Tools
+### 🛠️ Developer Tools
 
-* Add `sync_cli.py` to trigger push/pull from terminal easily
-* Add `Makefile` with common commands (`run`, `test`, `sync`)
-* Add Docker support for multi-node testing
+* Add `Makefile` with `run`, `test`, `sync`, `reset`
+* CLI support to `post`, `get`, `subscribe`, and `push/pull`
+* Browser-based event log viewer
 
-### 🧠 Semantic Enrichment
+### 🧠 Semantic & Ontology
 
-* Introduce basic schema validation using `jsonschema`
-* Begin building vocabularies in `shared-schemas/`
-* Index by `@type` or `@context` for basic querying
+* Add lightweight schema validation (e.g., `jsonschema`, `shacl-lite`)
+* Support redaction rules based on object types / ontology
+* Define standard object vocabularies for test domains (logistics, sensors, notes)
 
-### 🌐 Federation Enhancements
+### 🌐 Federation & Sync
 
-* Add support for webhook-style pub-sub notifications
-* Track object origin/source (e.g. `_source`, `_created` fields)
-* Prevent duplicate `@id` conflicts with a digest/checksum approach
+* Peer syncing with digest-based deduplication
+* Expose `/v1/peers` for peer introspection
+* Add webhook chaining between nodes (relay mode)
 
-### 🧪 Usability and Testing
+### 🧪 Usability & Community
 
-* Add `examples/shipment.json` and other ready-made JSON-LD templates
-* Implement visual object viewer in `micro_ui/`
-* Expand test coverage for federation and CLI
-
-### 📣 Community Readiness
-
-* Draft `roadmap.md`
-* Create GitHub issue templates
-* Write launch blog post or video intro
+* Add developer sandbox instructions
+* Dockerfile for isolated multi-node tests
+* Launch blog post or explainer video
+* Community site at `1r.tools` with examples and docs
 
 ---
 
 ## 🧭 Vision Reminder
 
-1R-Micro is the foundation of the 1R-X ecosystem: a lightweight, federated, and semantic approach to recording real-world data. It is meant to run anywhere, talk to anything, and enable responsible, open data infrastructure.
+1R-Micro is the semantic core of the 1R-X ecosystem: lightweight, federated, and designed for responsible data sharing. It enables experimentation, prototyping, and deployment of object-centric, linked data systems — on edge devices, in local apps, or across global networks.
 
-**Status: ✅ Core Complete | 🔄 Federation Active | 🚀 Ready to Expand**
+**Status: ✅ Core Complete | 🔁 Events Working | 🌐 Federation Emerging | 🚀 Ready to Grow**
+

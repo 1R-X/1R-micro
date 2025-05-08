@@ -13,7 +13,8 @@ def setup_module(module):
     datastore.OBJECT_STORE_PATH = TEST_STORE_PATH
 
 def teardown_module(module):
-    shutil.rmtree(TEST_STORE_PATH)
+    if os.path.exists(TEST_STORE_PATH):
+        shutil.rmtree(TEST_STORE_PATH)
 
 def test_save_and_get_object():
     test_id = f"urn:1r-micro:{uuid.uuid4()}"
@@ -21,12 +22,14 @@ def test_save_and_get_object():
         "@context": "https://example.org/context",
         "@type": "TestObject",
         "@id": test_id,
-        "value": 123
+        "value": 123,
+        "entity": "test"
     }
     datastore.save_object(obj)
     retrieved = datastore.get_object_by_id(test_id)
     assert retrieved is not None
     assert retrieved["value"] == 123
+    assert retrieved["entity"] == "test"
 
 def test_get_all_objects():
     all_objects = datastore.get_all_objects()
@@ -38,9 +41,13 @@ def test_delete_object():
     obj = {
         "@context": "https://example.org/context",
         "@type": "Deletable",
-        "@id": test_id
+        "@id": test_id,
+        "entity": "test"
     }
     datastore.save_object(obj)
     deleted = datastore.delete_object(test_id)
     assert deleted is True
     assert datastore.get_object_by_id(test_id) is None
+
+def test_get_nonexistent_object():
+    assert datastore.get_object_by_id("urn:1r-micro:does-not-exist") is None

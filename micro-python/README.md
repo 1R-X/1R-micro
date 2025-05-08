@@ -21,78 +21,113 @@ Whether you're building air cargo platforms, environmental sensor networks, digi
 
 ## 📦 Installation
 
+Absolutely. Here's a concise **"Developer Sandbox Setup"** section you can append to your `README.md` or `status.md` file to help contributors get started with running and testing 1R-Micro locally:
+
+---
+
+## 🧪 Developer Sandbox Setup
+
+This section helps developers set up a local environment to explore, test, and extend 1R-Micro with full federation and event simulation.
+
+---
+
+### ✅ Requirements
+
+* Python 3.10+
+* `pip` and `venv`
+* Optional: `make`, Docker, Postman or `curl`
+
+---
+
+### 📦 Setup Steps
+
 ```bash
 # Clone the repo
-git clone https://github.com/1r-x/1r-micro.git
+git clone https://github.com/your-org/1r-micro.git
 cd 1r-micro/micro-python
 
-# Create a virtual environment (optional)
+# Create a virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+```
 
-# Run the server
+---
+
+### ▶️ Run the Server
+
+```bash
 python server.py
 ```
 
----
-
-## 🔁 API Endpoints
-
-| Method | Endpoint        | Description           |
-| ------ | --------------- | --------------------- |
-| GET    | `/`             | Health check          |
-| GET    | `/objects`      | List all objects      |
-| POST   | `/objects`      | Create a new object   |
-| GET    | `/objects/<id>` | Get a specific object |
-
-Objects are stored as JSON-LD and use `@id` for unique URIs.
+Server will start at:
+`http://localhost:2691`
 
 ---
 
-## 🧪 Example
+### 🌐 Open the Frontend
 
-```bash
-curl -X POST http://localhost:5000/objects \
-  -H "Content-Type: application/json" \
-  -d '{
-    "@context": "https://onerecord.iata.org/ns/cargo",
-    "@type": "Shipment",
-    "shipmentID": "SHP123",
-    "origin": "JFK",
-    "destination": "FRA"
-  }'
+Visit:
+
+```
+http://localhost:2691/frontend
 ```
 
----
+Use this embedded test app to:
 
-## 🧩 Extend It
-
-* Add domain-specific object types and vocabularies
-* Use peer sync modules for federation
-* Embed into edge apps, IoT devices, or mobile apps
-* Build a viewer using the 1R-UI
+* Create objects
+* Send events
+* Subscribe to webhooks
+* View output and object graphs
 
 ---
 
-## 📄 License
+### 🔄 Test Federation (Multi-node)
 
-* Code: [MIT License](LICENSE)
-* Documentation and contexts: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+1. Open a second terminal
+2. Copy and rename `config.yaml` (e.g., `config-peer.yaml`)
+3. Change `store_path` and `port`
+4. Launch with:
 
----
+```bash
+CONFIG_PATH=config-peer.yaml python server.py
+```
 
-## 🌱 Contributing
-
-We're building a modular, federated standard for the future of semantic data. Join us.
-
-* GitHub: [github.com/1r-x](https://github.com/1r-x)
-* Chat: Coming soon (Matrix or Discord)
-* Docs: [`/docs`](../docs)
+Now you have **two nodes running locally** — ideal for testing `pull_all()`, subscriptions, and pub/sub.
 
 ---
 
-**Made with purpose by the 1R-X community.**
+### 🧪 Simulated Authentication
 
+Use the `Authorization` header to simulate an entity:
+
+```bash
+-H "Authorization: Bearer acme"
+```
+
+This will set your entity to `acme` for the request.
+
+---
+
+### 🧲 Trigger Webhooks
+
+You can run a **local webhook listener** with:
+
+```bash
+curl -X POST http://localhost:2691/v1/subscriptions \
+  -H "Authorization: Bearer acme" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "target": "http://localhost:2691/webhook",
+        "filter": { "@type": "Test" },
+        "events": ["created"]
+      }'
+```
+
+Then create a matching object to trigger the webhook.
+
+---
+
+Would you like this as a `sandbox.md` file or integrated into your README?

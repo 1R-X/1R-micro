@@ -37,7 +37,7 @@ def get_object(object_id):
 
     return jsonify(utils.redact_object_for(entity, obj)), 200
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 @api.route("/v1/objects", methods=["POST"])
 def create_object():
@@ -60,7 +60,7 @@ def create_object():
             "@type": "Event",
             "eventType": "created",
             "object": saved["@id"],
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "entity": caller
         }
         datastore.save_event(event)

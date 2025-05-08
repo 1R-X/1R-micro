@@ -1,81 +1,70 @@
+Here is the updated **top-level architecture** for 1R-Micro, made implementation-agnostic and reflecting recent updates like events, subscriptions, access control, and federation:
+
+---
+
 # 1R-Micro Architecture
 
-**1R-Micro** is a minimal, modular, and embeddable semantic object server. It forms the core engine of the 1R-X ecosystem — enabling the creation, storage, linkage, and federation of JSON-LD objects across decentralized systems.
+**1R-Micro** is a minimal, modular, and embeddable semantic object server. It powers the **1R-X ecosystem** by enabling the creation, storage, linking, querying, and federation of JSON-LD objects across decentralized systems.
 
 ---
 
-## 🎯 Design Goals
+## 🎯 Design Principles
 
-* **Simplicity**: Easy to run anywhere — no dependencies, no complex setup.
-* **Extensibility**: Works across domains with custom object types and contexts.
-* **Federation-first**: Nodes can operate independently or exchange data with peers.
-* **Semantics over syntax**: Data objects have meaning, not just structure.
-* **Edge-ready**: Can run on laptops, sensors, and low-resource devices.
+* **Small and Simple**: Zero-dependency core, deployable anywhere — from cloud to edge.
+* **Semantic-first**: Based on JSON-LD for meaningful, linkable data.
+* **Federated**: Designed for multi-entity, multi-node topologies.
+* **Composability**: Everything is modular — objects, events, subscriptions, access rules.
+* **Hackable**: Ideal for research, prototyping, and edge deployment.
 
 ---
 
-## 🧱 Core Components
+## 🧱 Core Modules
 
 ### 1. **Object Store**
 
-* Flat file storage (`object_store/`) or pluggable backend
-* Each object is a JSON-LD file with a unique `@id`
-* CRUD operations via REST
+* Stores semantic objects in flat files or pluggable backends (e.g., filesystem, SQLite, cloud)
+* Each object is a self-contained JSON-LD document
+* All objects have a unique `@id` and optional metadata: `entity`, `visibility`, `_privateFields`
 
-### 2. **REST API** (Python Flask)
+### 2. **REST API**
 
-| Method | Endpoint        | Description                 |
-| ------ | --------------- | --------------------------- |
-| GET    | `/objects`      | List all objects            |
-| GET    | `/objects/<id>` | Fetch object by ID          |
-| POST   | `/objects`      | Create a new object         |
-| PUT    | `/objects/<id>` | Update an object (optional) |
-| DELETE | `/objects/<id>` | Delete an object (optional) |
+* CRUD endpoints for objects: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`
+* Event publishing: `POST /events`
+* Subscription management: `POST`, `GET`, `DELETE /subscriptions`
+* Token introspection: `GET /whoami`
+* Render endpoint for human-readable formats
 
-### 3. **JSON-LD Model**
+### 3. **Access Control & Visibility**
 
-* Built on the [W3C JSON-LD standard](https://www.w3.org/TR/json-ld11/)
-* Uses `@context`, `@type`, and `@id` to define objects
-* Extensible with domain vocabularies (cargo, climate, health, etc.)
+* Entity-based permissions via bearer token or headers
+* Object-level visibility: `"public"` or `"sharedWith"`
+* Field-level redaction using `_privateFields`
+* Supports multi-tenant deployments or single-entity mode
 
-### 4. **Federation Module** *(planned)*
+### 4. **Event System**
 
-* Peer discovery
-* Object replication and subscription
-* Webhook-based notifications
+* Domain events are JSON-LD objects linked to other resources
+* Triggers pub-sub matching based on filters and event types
+* Webhook delivery is built-in (with retry planned)
 
-### 5. **CLI & SDKs** *(planned)*
+### 5. **Pub/Sub Engine**
 
-* CLI for local operations and scripting
-* SDKs in TypeScript, Rust for apps, UIs, and sensors
-
----
-
-## 🔄 Federation Model
-
-Every 1R-Micro node is:
-
-* **Autonomous**: Stores and serves its own objects
-* **Interoperable**: Can pull or push objects to other nodes
-* **Verifiable**: Object origins and changes are traceable
-
-Nodes may sync:
-
-* Periodically
-* On-demand (via API)
-* Via pub-sub hooks
+* Lightweight publish/subscribe system
+* Subscriptions can filter by object type, values, and event kinds
+* Supports local webhook delivery and future federation hooks
 
 ---
 
-## 🔗 Object Model
+## 🔗 Object Semantics
 
-Objects in 1R-Micro:
+Objects in 1R-Micro are:
 
-* Always have a unique `@id`
-* May link to other objects via `@id` references
-* Use types and properties defined by their `@context`
+* **Typed** (`@type`) and contextualized (`@context`)
+* **Globally Identifiable** via `@id` URNs
+* **Linkable** to other objects (`linkedTo`, etc.)
+* **Ownable** via the `entity` field
 
-### Example
+#### Example:
 
 ```json
 {
@@ -83,32 +72,47 @@ Objects in 1R-Micro:
   "@type": "Shipment",
   "@id": "urn:1r-micro:abc123",
   "origin": "JFK",
-  "destination": "FRA"
+  "destination": "FRA",
+  "entity": "airline-x",
+  "visibility": "public"
 }
 ```
 
 ---
 
-## 🧪 Runtime Behavior
+## 🔁 Federation & Sync
 
-* Objects are stored as-is in the object store
-* Indexing (planned) will support efficient retrieval by type or relationship
-* Data remains inspectable, transferable, and semantically rich
+* 1R-Micro instances are **autonomous nodes**
+* Future federation protocols will support:
 
----
-
-## 📈 Planned Extensions
-
-* Event model (`/events`, pub-sub)
-* Secure object signing & verification
-* Typed query language (SPARQL-lite or JSON-Path)
-* Frontend graph viewer (via `1r-ui`)
-* Support for additional backends (e.g., SQLite, IPFS)
+  * Discovery
+  * Object sync (pull/push)
+  * Pub-sub routing across servers
+* Object URNs remain stable across nodes
 
 ---
 
-## 🧠 Why This Matters
+## 🖥️ UI & Dev Tools
 
-The architecture of 1R-Micro is intentionally small, transparent, and adaptable. It’s not a platform — it’s a tool you can embed, fork, remix, or federate, bringing semantic clarity to local and global data flows alike.
+* Optional web UI (`/frontend`) for testing and exploration
+* Postable webhooks to verify subscription delivery
+* Command-line tools and SDKs (planned) in Python, TypeScript, Rust
 
-**Build small. Connect big.**
+---
+
+## 🔮 Planned Extensions
+
+* Ontology-driven rules and validation
+* Object signatures and change history
+* Subscription filtering by SPARQL-like queries
+* Federation layer using ActivityPub or Linked Data Notifications
+* Storage plugins (e.g., Git, S3, IPFS)
+
+---
+
+## 🧠 Philosophy
+
+1R-Micro is not a platform. It’s a **semantic engine** that can be embedded into your stack or product — lightweight, transparent, and federation-ready.
+
+> **Build small. Connect big. Federate meaningfully.**
+
