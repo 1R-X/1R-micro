@@ -84,21 +84,6 @@ Use this embedded test app to:
 
 ---
 
-### 🔄 Test Federation (Multi-node)
-
-1. Open a second terminal
-2. Copy and rename `config.yaml` (e.g., `config-peer.yaml`)
-3. Change `store_path` and `port`
-4. Launch with:
-
-```bash
-CONFIG_PATH=config-peer.yaml python server.py
-```
-
-Now you have **two nodes running locally** — ideal for testing `pull_all()`, subscriptions, and pub/sub.
-
----
-
 ### 🧪 Simulated Authentication
 
 Use the `Authorization` header to simulate an entity:
@@ -128,6 +113,4 @@ curl -X POST http://localhost:2691/v1/subscriptions \
 
 Then create a matching object to trigger the webhook.
 
----
 
-Would you like this as a `sandbox.md` file or integrated into your README?
