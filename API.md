@@ -12,7 +12,7 @@ http://localhost:2691
 
 ---
 
-## 🏠 GET /v1/
+## 🏠 GET /
 
 **Returns:** a welcome message to confirm the server is running.
 
@@ -45,12 +45,6 @@ Hello from 1R-Micro (Python)
 
 **Description:** Retrieves a single object by its `@id`, subject to visibility and entity-based access control.
 
-**Example:**
-
-```bash
-curl http://localhost:2691/v1/objects/urn:1r-micro:abc123 -H "Authorization: Bearer <token>"
-```
-
 **Response:** `200 OK`
 
 ```json
@@ -62,8 +56,8 @@ curl http://localhost:2691/v1/objects/urn:1r-micro:abc123 -H "Authorization: Bea
 
 **Errors:**
 
-* `403 Forbidden` if access is denied
-* `404 Not Found` if the object does not exist
+- `403 Forbidden` if access is denied
+- `404 Not Found` if the object does not exist
 
 ---
 
@@ -91,18 +85,9 @@ curl http://localhost:2691/v1/objects/urn:1r-micro:abc123 -H "Authorization: Bea
 }
 ```
 
-**Curl Example:**
-
-```bash
-curl -X POST http://localhost:2691/v1/objects \
-  -H "Content-Type: application/json" \
-  -H "X-Entity: acme" \
-  -d '{"@type":"SensorReading","value":22.5,"entity":"acme"}'
-```
-
 ---
 
-## ↺ PUT /v1/objects/<object_id>
+## 🔄 PUT /v1/objects/<object_id>
 
 **Description:** Updates an existing object by `@id`.
 
@@ -141,31 +126,20 @@ curl -X POST http://localhost:2691/v1/objects \
 
 **Errors:**
 
-* `403 Forbidden` if access is denied
-* `404 Not Found` if the object does not exist
+- `403 Forbidden` if access is denied
+- `404 Not Found` if the object does not exist
 
 ---
 
-## 📾 GET /v1/objects/<object_id>/render
+## 🧾 GET /v1/objects/<object_id>/render
 
 **Description:** Returns a human-readable string representation of the object.
 
 **Query Parameters:**
 
-* `format`: `html`, `md`, or `ascii`
+- `format`: Optional. One of `html`, `md`, `ascii`
 
-**Curl Example:**
-
-```bash
-curl http://localhost:2691/v1/objects/urn:1r-micro:abc123/render?format=md
-```
-
-**Response (Markdown):** `200 OK`
-
-```
-## SensorReading
-- value: 22.5
-```
+**Response:** `200 OK`
 
 ---
 
@@ -173,18 +147,46 @@ curl http://localhost:2691/v1/objects/urn:1r-micro:abc123/render?format=md
 
 **Description:** Creates a new event subscription.
 
-```bash
-curl -X POST http://localhost:2691/v1/subscriptions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <token>" \
-  -d '{"target":"https://example.com/webhook","filter":{"@type":"SensorReading"},"events":["created"]}'
+**Request Body:**
+
+```json
+{
+  "target": "https://example.com/webhook",
+  "filter": {
+    "@type": "SensorReading",
+    "value": { "gt": 100 }
+  },
+  "events": ["created"],
+  "expires_at": "2025-06-01T00:00:00Z"
+}
+```
+
+**Response:** `201 Created`
+
+```json
+{
+  "id": "sub-abc123",
+  "message": "Subscription created"
+}
 ```
 
 ---
 
 ## 🗒️ GET /v1/subscriptions
 
-**Description:** Lists all subscriptions for the current entity.
+**Description:** Lists all active subscriptions owned by the calling entity.
+
+**Response:** `200 OK`
+
+```json
+[
+  {
+    "id": "sub-abc123",
+    "target": "...",
+    "filter": { "@type": "SensorReading" }
+  }
+]
+```
 
 ---
 
@@ -192,71 +194,123 @@ curl -X POST http://localhost:2691/v1/subscriptions \
 
 **Description:** Deletes a subscription.
 
+**Response:** `200 OK`
+
+```json
+{ "message": "Subscription deleted" }
+```
+
+**Errors:**
+
+- `403 Forbidden` if the subscription does not belong to the caller
+- `404 Not Found` if the subscription does not exist
+
 ---
 
 ## 📣 POST /v1/events
 
-**Description:** Publishes a domain event.
+**Description:** Publishes a user-defined domain event. Triggers pub/sub if filters match.
 
-```bash
-curl -X POST http://localhost:2691/v1/events \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <token>" \
-  -d '{"@type":"Event","eventType":"arrivedAtGate","object":"urn:1r-micro:ULD456","timestamp":"2025-05-08T16:45:00Z"}'
+**Request Body:**
+
+```json
+{
+  "@type": "Event",
+  "eventType": "arrivedAtGate",
+  "object": "urn:1r-micro:ULD456",
+  "timestamp": "2025-05-08T16:45:00Z"
+}
 ```
+
+**Response:** `201 Created`
 
 ---
 
 ## 🔍 GET /v1/whoami
 
-**Description:** Returns information about the current entity.
+**Description:** Returns information about the current authenticated user.
 
----
+**Response:** `200 OK`
 
-## 🧹 PATCH /v1/objects/<object_id>
-
-**Description:** Partial update using JSON Merge Patch.
-
----
-
-## 🔐 Auth
-
-Use Bearer token:
-
-```http
-Authorization: Bearer <your-token>
+```json
+{
+  "entity": "acme-corp",
+  "roles": ["default"],
+  "token_valid": true
+}
 ```
 
 ---
 
-## 🏡 Entity & Visibility
+## 🧩 PATCH /v1/objects/<object_id>
 
-See main spec for details on `entity`, `visibility`, `sharedWith`, `_privateFields`.
+**Description:** Partially updates an object using JSON Merge Patch.
+
+**Request Body Example:**
+
+```json
+{
+  "status": "inTransit",
+  "location": "Zurich"
+}
+```
+
+**Response:** `200 OK`
 
 ---
 
-## ⚡ Curl Summary
+## 🔐 Authentication
+
+Clients may use a simulated token for development:
+
+```
+Authorization: Bearer acme
+```
+
+This is interpreted as setting the request's `entity` to `acme`. No real token validation is performed.
+
+In production, replace this with JWT validation logic.
+
+---
+
+## 🧪 Curl Examples (No Auth Header)
+
+### Create an object (unauthenticated)
 
 ```bash
 curl -X POST http://localhost:2691/v1/objects \
   -H "Content-Type: application/json" \
-  -H "X-Entity: acme" \
-  -d '{"@type":"Test","value":123,"entity":"acme"}'
+  -d '{"@type":"Test","value":123}'
+```
 
+### Get all objects
+
+```bash
 curl http://localhost:2691/v1/objects
+```
+
+### Get object
+
+```bash
 curl http://localhost:2691/v1/objects/urn:1r-micro:abc123
-curl -X PUT http://localhost:2691/v1/objects/urn:1r-micro:abc123 \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <token>" \
-  -d '{"@type":"Test","value":456}'
-curl -X DELETE http://localhost:2691/v1/objects/urn:1r-micro:abc123 \
-  -H "Authorization: Bearer <token>"
-curl http://localhost:2691/v1/objects/urn:1r-micro:abc123/render?format=md
 ```
 
 ---
 
-## Notes
+## 🧪 Curl Examples (Simulated Token Mode)
 
-* All requests and responses are in JSON.
-* The API is designed to be minimal, secure, and federated.
+### Create an object as entity `acme`
+
+```bash
+curl -X POST http://localhost:2691/v1/objects \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer acme" \
+  -d '{"@type":"SensorReading","value":22.5,"entity":"acme"}'
+```
+
+### Get object as entity `acme`
+
+```bash
+curl http://localhost:2691/v1/objects/urn:1r-micro:abc123 \
+  -H "Authorization: Bearer acme"
+```
