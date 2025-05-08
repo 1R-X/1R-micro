@@ -96,7 +96,7 @@ curl http://localhost:2691/v1/objects/urn:1r-micro:abc123 -H "Authorization: Bea
 ```bash
 curl -X POST http://localhost:2691/v1/objects \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <token>" \
+  -H "X-Entity: acme" \
   -d '{"@type":"SensorReading","value":22.5,"entity":"acme"}'
 ```
 
@@ -240,7 +240,7 @@ See main spec for details on `entity`, `visibility`, `sharedWith`, `_privateFiel
 ```bash
 curl -X POST http://localhost:2691/v1/objects \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <token>" \
+  -H "X-Entity: acme" \
   -d '{"@type":"Test","value":123,"entity":"acme"}'
 
 curl http://localhost:2691/v1/objects
