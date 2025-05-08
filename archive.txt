@@ -1,0 +1,1068 @@
+
+>>> FILE: archive.txt <<<
+
+>>> END FILE <<<
+
+>>> FILE: archive_creator.py <<<
+import os
+
+TEXT_EXTENSIONS = {".py", ".txt", ".json", ".yaml", ".yml", ".md", ".html", ".js", ".ts", ".css", ".ini"}
+EXCLUDE_DIRS = {"venv", ".git", "__pycache__"}
+
+def is_text_file(file_path):
+    ext = os.path.splitext(file_path)[1].lower()
+    return ext in TEXT_EXTENSIONS
+
+def create_archive(base_dir, archive_path="archive.txt"):
+    with open(archive_path, "w", encoding="utf-8") as archive:
+        for root, dirs, files in os.walk(base_dir):
+            # Skip excluded directories
+            dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
+
+            for file in files:
+                file_path = os.path.join(root, file)
+                if not is_text_file(file_path):
+                    continue
+
+                rel_path = os.path.relpath(file_path, base_dir)
+                archive.write(f"\n>>> FILE: {rel_path} <<<\n")
+                try:
+                    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                        archive.write(f.read())
+                except Exception as e:
+                    archive.write(f"[ERROR READING FILE: {e}]\n")
+                archive.write(f"\n>>> END FILE <<<\n")
+
+    print(f"✅ Archive created: {archive_path}")
+
+if __name__ == "__main__":
+    create_archive(base_dir=".")
+
+>>> END FILE <<<
+
+>>> FILE: README.md <<<
+# 1R-micro
+
+**A minimal, embeddable, federated object engine for semantic data exchange.**
+
+1R-micro is the core reference implementation of the 1R-X ecosystem — an open, lightweight, and extensible framework for creating, linking, and exchanging semantically meaningful objects across domains.
+
+Whether you're building air cargo platforms, environmental sensor networks, digital twin systems, or scientific data logs, 1R-Micro gives you a portable, JSON-LD-native object store and REST API to model, share, and orchestrate real-world entities.
+
+---
+
+## ✨ Features
+
+* 🧠 **JSON-LD native** semantic object modeling
+* 🌍 **Federated-ready** — link and sync across nodes
+* 🧱 **Zero-dependency backend** — just Python, file storage, and Flask
+* 🚀 **Extensible** for any domain: cargo, science, media, climate
+* 📡 **Offline-first** — runs on laptops, edge devices, even mobile
+* 🔗 **Object linking** using URIs and `@id` references
+
+---
+
+## 📦 Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/1r-x/1r-micro.git
+cd 1r-micro/micro-python
+
+# Create a virtual environment (optional)
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the server
+python server.py
+```
+
+---
+
+## 🔁 API Endpoints
+
+| Method | Endpoint        | Description           |
+| ------ | --------------- | --------------------- |
+| GET    | `/`             | Health check          |
+| GET    | `/objects`      | List all objects      |
+| POST   | `/objects`      | Create a new object   |
+| GET    | `/objects/<id>` | Get a specific object |
+
+Objects are stored as JSON-LD and use `@id` for unique URIs.
+
+---
+
+## 🧪 Example
+
+```bash
+curl -X POST http://localhost:5000/objects \
+  -H "Content-Type: application/json" \
+  -d '{
+    "@context": "https://onerecord.iata.org/ns/cargo",
+    "@type": "Shipment",
+    "shipmentID": "SHP123",
+    "origin": "JFK",
+    "destination": "FRA"
+  }'
+```
+
+---
+
+## 🧩 Extend It
+
+* Add domain-specific object types and vocabularies
+* Use peer sync modules for federation
+* Embed into edge apps, IoT devices, or mobile apps
+* Build a viewer using the 1R-UI
+
+---
+
+## 📄 License
+
+* Code: [MIT License](LICENSE)
+* Documentation and contexts: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+---
+
+## 🌱 Contributing
+
+We're building a modular, federated standard for the future of semantic data. Join us.
+
+* GitHub: [github.com/1r-x](https://github.com/1r-x)
+* Chat: Coming soon (Matrix or Discord)
+* Docs: [`/docs`](../docs)
+
+---
+
+**Made with purpose by the 1R-X community.**
+
+>>> END FILE <<<
+
+>>> FILE: CONTRIBUTING.md <<<
+# Contributing to 1R-Micro
+
+Welcome! We're excited that you're interested in contributing to **1R-Micro**, the core engine of the 1R-X project. Whether you're fixing bugs, improving documentation, writing code, or proposing ideas — you're helping shape the future of open, semantic, federated data.
+
+---
+
+## 👇 Where to Start
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/1r-x/1r-micro.git
+cd 1r-micro/micro-python  # Start with Python version
+```
+
+### 2. Run Locally
+
+```bash
+pip install -r requirements.txt
+python server.py
+```
+
+Test the API at [http://localhost:5000](http://localhost:5000).
+
+### 3. Try a Change
+
+* Add an object type
+* Improve the object store logic
+* Tweak an endpoint or add a new one
+
+---
+
+## 💡 Ways to Contribute
+
+* 🐛 Report bugs (use [Issues](https://github.com/1r-x/1r-micro/issues))
+* 🛠 Submit fixes or improvements via pull requests
+* 📚 Improve documentation or write tutorials
+* 🧪 Create and share new object types and JSON-LD examples
+* 🌍 Build language SDKs (Rust, TS, Go, etc.)
+* 🧱 Extend the federation logic, pub-sub, or peer sync
+* 🎨 Design a UI for viewing objects and graphs
+
+---
+
+## 🧱 Project Structure
+
+```
+1r-micro/
+├── micro-python/        ← Flask-based microserver
+├── micro-rust/          ← (Planned)
+├── micro-ts-sdk/        ← (Planned)
+├── shared-schemas/      ← JSON-LD vocabularies
+├── examples/            ← Sample objects to test with
+```
+
+---
+
+## 🔀 Pull Requests
+
+* Fork the repo
+* Create a feature branch
+* Make your changes
+* Commit with a clear message
+* Push and open a pull request
+
+We’ll review, discuss, and hopefully merge it! 🧡
+
+---
+
+## 🧠 Design Principles
+
+* **Simple over clever**
+* **Semantically clear** over technically verbose
+* **Modular and embeddable**
+* **Decentralized by design**
+* **Inclusive and domain-agnostic**
+
+---
+
+## 📜 License
+
+By contributing, you agree that your contributions will be licensed under:
+
+* Code: MIT License
+* Docs + Schemas: Creative Commons BY 4.0
+
+---
+
+## 🙌 Thank You
+
+We’re building 1R-Micro as the foundation for a smarter, more open, and more trustworthy data future. Your contributions make that possible.
+
+**– The 1R-X Team**
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/server.py <<<
+from flask import Flask
+from micro_core.api import api
+from flask_cors import CORS
+
+app = Flask(__name__)
+app.register_blueprint(api)
+
+# Configure CORS to allow requests from your React frontend
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+
+
+from flask import make_response
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+
+@app.route('/objects', methods=['OPTIONS'])
+def options():
+    response = make_response()
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",   # Listen on all interfaces
+        port=5010,        # Default port
+        debug=True        # Enable auto-reload and error logs
+    )
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/ARCHITECTURE.md <<<
+# 1R-Micro (Python) – Architecture
+
+This document explains the internal architecture of the **Python-based reference implementation** of 1R-Micro, located in the `micro-python/` directory. It is a lightweight, file-based semantic object server built using Flask.
+
+---
+
+## 🧱 Components
+
+### 1. `server.py`
+
+The main Flask application that:
+
+* Exposes REST endpoints for object creation, retrieval, and listing
+* Manages file-based storage of JSON-LD objects
+* Automatically assigns unique `@id` URNs to each new object
+
+### 2. `object_store/`
+
+* Local directory used to store JSON-LD objects
+* Each object is saved as a `.json` file using a UUID as its filename
+* Files are retrievable by ID via API
+
+### 3. `requirements.txt`
+
+Specifies Python dependencies (currently only Flask).
+
+---
+
+## 🔁 API Logic
+
+### Endpoint: `POST /objects`
+
+* Accepts a JSON-LD object
+* Assigns a unique `@id` (if not provided)
+* Stores the object in the `object_store/` folder
+* Returns the stored object (with `@id`)
+
+### Endpoint: `GET /objects`
+
+* Lists all stored objects by reading all `.json` files in `object_store/`
+
+### Endpoint: `GET /objects/<id>`
+
+* Retrieves a specific object by ID (matching filename)
+
+> Optional endpoints like `PUT` or `DELETE` can be added later for full CRUD.
+
+---
+
+## 🧠 Design Characteristics
+
+* **Stateless server**: No database, uses local file system
+* **Semantic-first**: Operates directly on JSON-LD objects with `@context`, `@type`, `@id`
+* **Self-contained**: No external services required
+* **Readable and hackable**: Minimal codebase, ideal for experimentation
+
+---
+
+## 🧪 Development Notes
+
+* All logs print to stdout — ideal for development
+* No object validation is enforced yet — schema validation can be added via `jsonschema` or `shacl`
+* Object syncing, pub/sub, and signatures are **planned but not yet implemented**
+
+---
+
+## 🚀 Running Locally
+
+```bash
+cd micro-python
+pip install -r requirements.txt
+python server.py
+```
+
+Server runs at: `http://localhost:5000`
+
+---
+
+## 📦 Future Enhancements
+
+* Optional backend storage (e.g., SQLite or remote object store)
+* Signature verification and change tracking
+* Peer-to-peer object sync
+* CLI tools for managing the object store
+
+---
+
+**This Python implementation serves as the reference point for all 1R-Micro language ports.**
+
+Maintained by the 1R-X project.
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/requirements.txt <<<
+Flask
+pytest
+PyYAML
+requests
+>>> END FILE <<<
+
+>>> FILE: micro-python/STATUS.md <<<
+# 1R-Micro – Project Status Summary (as of May 2025)
+
+## ✅ Status Summary
+
+The 1R-Micro project has reached a stable and functional baseline. It now delivers a minimal, embeddable, and federated semantic object server built in Python, with all core features in place and a foundation for growth.
+
+---
+
+## 📦 Key Deliverables Completed
+
+### 🔧 Core Features
+
+* **Modular architecture** with `micro_core/` for logic, `server.py` for entry point
+* **Full REST API** supporting:
+
+  * `GET /objects`, `GET /objects/<id>`
+  * `POST /objects`, `PUT /objects/<id>`, `DELETE /objects/<id>`
+* **JSON-LD object handling** with normalized `@id` generation
+* **File-based object store** in `object_store/`
+* **Environment-configurable settings** via `config.yaml`
+
+  * Custom `store_path`, `base_uri`, `default_context`
+
+### 🧪 Tests
+
+* `tests/test_api.py` to validate endpoint behavior
+* `tests/test_store.py` to validate datastore logic independently
+
+### 🔄 Federation
+
+* `peers.yaml` defines known peers
+* `sync.py` enables:
+
+  * `pull_from_peer(peer_url)` and `push_to_peer(peer_url)`
+  * `pull_all()` and `push_all()` across configured peers
+* Tested multi-node setup with custom config and port separation
+
+### 📁 Repo Organization
+
+* `examples/` for future sample data
+* `docs/architecture.md`, `CONTRIBUTING.md`, and `README.md`
+* Clean `.gitignore`, `LICENSE`, and structure suitable for growth
+
+---
+
+## 🚀 Next Steps
+
+### 🔧 Stability and Developer Tools
+
+* Add `sync_cli.py` to trigger push/pull from terminal easily
+* Add `Makefile` with common commands (`run`, `test`, `sync`)
+* Add Docker support for multi-node testing
+
+### 🧠 Semantic Enrichment
+
+* Introduce basic schema validation using `jsonschema`
+* Begin building vocabularies in `shared-schemas/`
+* Index by `@type` or `@context` for basic querying
+
+### 🌐 Federation Enhancements
+
+* Add support for webhook-style pub-sub notifications
+* Track object origin/source (e.g. `_source`, `_created` fields)
+* Prevent duplicate `@id` conflicts with a digest/checksum approach
+
+### 🧪 Usability and Testing
+
+* Add `examples/shipment.json` and other ready-made JSON-LD templates
+* Implement visual object viewer in `micro_ui/`
+* Expand test coverage for federation and CLI
+
+### 📣 Community Readiness
+
+* Draft `roadmap.md`
+* Create GitHub issue templates
+* Write launch blog post or video intro
+
+---
+
+## 🧭 Vision Reminder
+
+1R-Micro is the foundation of the 1R-X ecosystem: a lightweight, federated, and semantic approach to recording real-world data. It is meant to run anywhere, talk to anything, and enable responsible, open data infrastructure.
+
+**Status: ✅ Core Complete | 🔄 Federation Active | 🚀 Ready to Expand**
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/config.yaml <<<
+store_path: ./object_store
+base_uri: urn:1r-micro
+default_context: https://1r-x.org/context/core
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/__init__.py <<<
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/README.md <<<
+# 1R-Micro for Python
+
+**A minimal, embeddable, federated object engine for semantic data exchange.**
+
+1R-Micro is the core reference implementation of the 1R-X ecosystem — an open, lightweight, and extensible framework for creating, linking, and exchanging semantically meaningful objects across domains.
+
+Whether you're building air cargo platforms, environmental sensor networks, digital twin systems, or scientific data logs, 1R-Micro gives you a portable, JSON-LD-native object store and REST API to model, share, and orchestrate real-world entities.
+
+---
+
+## ✨ Features
+
+* 🧠 **JSON-LD native** semantic object modeling
+* 🌍 **Federated-ready** — link and sync across nodes
+* 🧱 **Zero-dependency backend** — just Python, file storage, and Flask
+* 🚀 **Extensible** for any domain: cargo, science, media, climate
+* 📡 **Offline-first** — runs on laptops, edge devices, even mobile
+* 🔗 **Object linking** using URIs and `@id` references
+
+---
+
+## 📦 Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/1r-x/1r-micro.git
+cd 1r-micro/micro-python
+
+# Create a virtual environment (optional)
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the server
+python server.py
+```
+
+---
+
+## 🔁 API Endpoints
+
+| Method | Endpoint        | Description           |
+| ------ | --------------- | --------------------- |
+| GET    | `/`             | Health check          |
+| GET    | `/objects`      | List all objects      |
+| POST   | `/objects`      | Create a new object   |
+| GET    | `/objects/<id>` | Get a specific object |
+
+Objects are stored as JSON-LD and use `@id` for unique URIs.
+
+---
+
+## 🧪 Example
+
+```bash
+curl -X POST http://localhost:5000/objects \
+  -H "Content-Type: application/json" \
+  -d '{
+    "@context": "https://onerecord.iata.org/ns/cargo",
+    "@type": "Shipment",
+    "shipmentID": "SHP123",
+    "origin": "JFK",
+    "destination": "FRA"
+  }'
+```
+
+---
+
+## 🧩 Extend It
+
+* Add domain-specific object types and vocabularies
+* Use peer sync modules for federation
+* Embed into edge apps, IoT devices, or mobile apps
+* Build a viewer using the 1R-UI
+
+---
+
+## 📄 License
+
+* Code: [MIT License](LICENSE)
+* Documentation and contexts: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+---
+
+## 🌱 Contributing
+
+We're building a modular, federated standard for the future of semantic data. Join us.
+
+* GitHub: [github.com/1r-x](https://github.com/1r-x)
+* Chat: Coming soon (Matrix or Discord)
+* Docs: [`/docs`](../docs)
+
+---
+
+**Made with purpose by the 1R-X community.**
+
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/object_store/urn_1r-micro_0c2cba46-75f5-4aa6-b525-5bc77f68c1a6.json <<<
+{
+  "@id": "urn:1r-micro:0c2cba46-75f5-4aa6-b525-5bc77f68c1a6",
+  "@type": "Bug",
+  "linkedTo": [
+    "urn:1r-micro:e46af9b2-1a00-415d-8a2e-beb9001477e8"
+  ],
+  "title": "Save doesn't work",
+  "bugId": "123"
+}
+>>> END FILE <<<
+
+>>> FILE: micro-python/object_store/urn_1r-micro_e46af9b2-1a00-415d-8a2e-beb9001477e8.json <<<
+{
+  "@id": "urn:1r-micro:e46af9b2-1a00-415d-8a2e-beb9001477e8",
+  "@type": "Task",
+  "linkedTo": "urn:1r-micro:ad62deed-79b9-44ea-8dbe-f1a55f8714a8",
+  "responsible": "Henk",
+  "title": "Go home"
+}
+>>> END FILE <<<
+
+>>> FILE: micro-python/object_store/urn_1r-micro_f8b543b5-f36b-42d4-9e45-cdd02f83a81f.json <<<
+{
+  "@id": "urn:1r-micro:f8b543b5-f36b-42d4-9e45-cdd02f83a81f",
+  "@type": "Task",
+  "linkedTo": [
+    "urn:1r-micro:0c2cba46-75f5-4aa6-b525-5bc77f68c1a6"
+  ],
+  "responsible": "Jean-Yves",
+  "title": "Fix it"
+}
+>>> END FILE <<<
+
+>>> FILE: micro-python/object_store/urn_1r-micro_695ff32a-fc64-4c4b-8349-553ff29beb87.json <<<
+{
+  "@id": "urn:1r-micro:695ff32a-fc64-4c4b-8349-553ff29beb87",
+  "@type": "Bug",
+  "bugId": "123",
+  "title": "Big issue",
+  "linkedTo": "urn:1r-micro:0c2cba46-75f5-4aa6-b525-5bc77f68c1a6"
+}
+>>> END FILE <<<
+
+>>> FILE: micro-python/object_store/urn_1r-micro_ad62deed-79b9-44ea-8dbe-f1a55f8714a8.json <<<
+{
+  "@id": "urn:1r-micro:ad62deed-79b9-44ea-8dbe-f1a55f8714a8",
+  "@type": "Idea",
+  "ideaType": "test",
+  "title": "another",
+  "linkedTo": "urn:1r-micro:0c2cba46-75f5-4aa6-b525-5bc77f68c1a6"
+}
+>>> END FILE <<<
+
+>>> FILE: micro-python/.pytest_cache/README.md <<<
+# pytest cache directory #
+
+This directory contains data from the pytest's cache plugin,
+which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
+
+**Do not** commit this to version control.
+
+See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/tests/__init__.py <<<
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/tests/test_store.py <<<
+import os
+import json
+import uuid
+import shutil
+import pytest
+from micro_core import datastore
+
+# Use a temporary test folder for storage
+TEST_STORE_PATH = os.path.join(os.path.dirname(__file__), "..", "object_store_test")
+
+def setup_module(module):
+    os.makedirs(TEST_STORE_PATH, exist_ok=True)
+    datastore.OBJECT_STORE_PATH = TEST_STORE_PATH
+
+def teardown_module(module):
+    shutil.rmtree(TEST_STORE_PATH)
+
+def test_save_and_get_object():
+    test_id = f"urn:1r-micro:{uuid.uuid4()}"
+    obj = {
+        "@context": "https://example.org/context",
+        "@type": "TestObject",
+        "@id": test_id,
+        "value": 123
+    }
+    datastore.save_object(obj)
+    retrieved = datastore.get_object_by_id(test_id)
+    assert retrieved is not None
+    assert retrieved["value"] == 123
+
+def test_get_all_objects():
+    all_objects = datastore.get_all_objects()
+    assert isinstance(all_objects, list)
+    assert any("@id" in obj for obj in all_objects)
+
+def test_delete_object():
+    test_id = f"urn:1r-micro:{uuid.uuid4()}"
+    obj = {
+        "@context": "https://example.org/context",
+        "@type": "Deletable",
+        "@id": test_id
+    }
+    datastore.save_object(obj)
+    deleted = datastore.delete_object(test_id)
+    assert deleted is True
+    assert datastore.get_object_by_id(test_id) is None
+>>> END FILE <<<
+
+>>> FILE: micro-python/tests/test_api.py <<<
+import pytest
+import json
+from micro_core.api import api
+from flask import Flask
+
+@pytest.fixture
+def client():
+    app = Flask(__name__)
+    app.register_blueprint(api)
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
+
+def test_index(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert b"Hello from 1R-Micro" in response.data
+
+def test_create_and_get_object(client):
+    obj = {
+        "@context": "https://example.org/context",
+        "@type": "TestObject",
+        "name": "Sample"
+    }
+    response = client.post("/objects", data=json.dumps(obj), content_type="application/json")
+    assert response.status_code == 201
+    returned = response.get_json()
+    object_id = returned["@id"]
+
+    get_response = client.get(f"/objects/{object_id}")
+    assert get_response.status_code == 200
+    fetched = get_response.get_json()
+    assert fetched["@id"] == object_id
+    assert fetched["name"] == "Sample"
+
+def test_update_object(client):
+    obj = {
+        "@context": "https://example.org/context",
+        "@type": "Updatable",
+        "value": 10
+    }
+    post_response = client.post("/objects", data=json.dumps(obj), content_type="application/json")
+    object_id = post_response.get_json()["@id"]
+
+    updated_obj = {
+        "@context": "https://example.org/context",
+        "@type": "Updatable",
+        "value": 20
+    }
+    put_response = client.put(f"/objects/{object_id}", data=json.dumps(updated_obj), content_type="application/json")
+    assert put_response.status_code == 200
+    assert put_response.get_json()["value"] == 20
+
+def test_delete_object(client):
+    obj = {
+        "@context": "https://example.org/context",
+        "@type": "ToDelete",
+        "key": "value"
+    }
+    post_response = client.post("/objects", data=json.dumps(obj), content_type="application/json")
+    object_id = post_response.get_json()["@id"]
+
+    delete_response = client.delete(f"/objects/{object_id}")
+    assert delete_response.status_code == 200
+
+    follow_up = client.get(f"/objects/{object_id}")
+    assert follow_up.status_code == 404
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/docs/roadmap.md <<<
+
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/docs/use-cases.md <<<
+
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/sample_los/consignment.json <<<
+{
+    "@context": "https://example.org/context",
+    "@type": "Consignment",
+    "@id": "urn:1r-micro:consignment456",
+    "goodsDescription": "Books",
+    "weight": {
+      "value": 100,
+      "unit": "kg"
+    }
+  }
+  
+>>> END FILE <<<
+
+>>> FILE: micro-python/sample_los/shipment.json <<<
+{
+    "@context": "https://example.org/context",
+    "@type": "Shipment",
+    "@id": "urn:1r-micro:shipment123",
+    "consignment": {
+      "@id": "http://127.0.0.1:5001/objects/urn:1r-micro-1:urn:1r-micro:consignment456"
+    },
+    "origin": "JFK",
+    "destination": "FRA"
+  }
+  
+>>> END FILE <<<
+
+>>> FILE: micro-python/micro_core/__init__.py <<<
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/micro_core/api.py <<<
+from flask import Blueprint, request, jsonify
+from micro_core import datastore
+import uuid
+
+api = Blueprint('api', __name__)
+
+@api.route("/", methods=["GET"])
+def index():
+    return "Hello from 1R-Micro (Python)"
+
+@api.route("/objects", methods=["GET"])
+def get_all_objects():
+    objects = datastore.get_all_objects()
+    return jsonify(objects), 200
+
+@api.route("/objects/<object_id>", methods=["GET"])
+def get_object(object_id):
+    obj = datastore.get_object_by_id(object_id)
+    if obj:
+        return jsonify(obj), 200
+    else:
+        return jsonify({"error": "Object not found"}), 404
+
+@api.route("/objects", methods=["POST"])
+def create_object():
+    try:
+        obj = request.get_json(force=True)
+
+        # Assign a unique @id if missing
+        if "@id" not in obj:
+            obj["@id"] = f"urn:1r-micro:{uuid.uuid4()}"
+
+        # Ensure 'linkedTo' is a list if present
+        if 'linkedTo' in obj and not isinstance(obj['linkedTo'], list):
+            obj['linkedTo'] = [obj['linkedTo']]
+
+        saved = datastore.save_object(obj)
+        return jsonify(saved), 201
+    except Exception as e:
+        # Log the exception details
+        app.logger.error(f"Error creating object: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+
+
+
+@api.route("/objects/<object_id>", methods=["PUT"])
+def update_object(object_id):
+    if not datastore.object_exists(object_id):
+        return jsonify({"error": "Object not found"}), 404
+
+    updated_obj = request.get_json(force=True)
+    updated_obj["@id"] = object_id
+    saved = datastore.save_object(updated_obj)
+    return jsonify(saved), 200
+
+@api.route("/objects/<object_id>", methods=["DELETE"])
+def delete_object(object_id):
+    success = datastore.delete_object(object_id)
+    if success:
+        return jsonify({"message": "Deleted"}), 200
+    else:
+        return jsonify({"error": "Object not found"}), 404
+
+>>> END FILE <<<
+
+>>> FILE: micro-python/micro_core/datastore.py <<<
+import os
+import json
+import uuid
+import yaml
+
+
+# Load config
+CONFIG_PATH = os.environ.get("CONFIG_PATH", os.path.join(os.path.dirname(__file__), '..', 'config.yaml'))
+with open(CONFIG_PATH, 'r') as f:
+    config = yaml.safe_load(f)
+
+OBJECT_STORE_PATH = config.get("store_path", os.path.join(os.path.dirname(__file__), '..', 'object_store'))
+BASE_URI = config.get("base_uri", "urn:1r-micro")
+
+# Ensure storage folder exists
+os.makedirs(OBJECT_STORE_PATH, exist_ok=True)
+
+def _get_object_path(object_id):
+    """Convert an object ID into a filename."""
+    clean_id = object_id.replace(":", "_").replace("/", "_")
+    return os.path.join(OBJECT_STORE_PATH, f"{clean_id}.json")
+
+def get_all_objects():
+    """Return all stored objects."""
+    objects = []
+    for filename in os.listdir(OBJECT_STORE_PATH):
+        if filename.endswith(".json"):
+            with open(os.path.join(OBJECT_STORE_PATH, filename), "r") as f:
+                try:
+                    obj = json.load(f)
+                    objects.append(obj)
+                except json.JSONDecodeError:
+                    continue
+    return objects
+
+def get_object_by_id(object_id):
+    """Return a single object by @id."""
+    path = _get_object_path(object_id)
+    if not os.path.exists(path):
+        return None
+    with open(path, "r") as f:
+        return json.load(f)
+
+def save_object(obj):
+    """Save a new or updated object."""
+    # Normalize @id
+    if "@id" not in obj:
+        obj["@id"] = f"{BASE_URI}:{uuid.uuid4()}"
+    elif not obj["@id"].startswith(BASE_URI):
+        obj["@id"] = f"{BASE_URI}:{obj['@id']}"
+
+    object_id = obj["@id"]
+    path = _get_object_path(object_id)
+    with open(path, "w") as f:
+        json.dump(obj, f, indent=2)
+    return obj
+
+def delete_object(object_id):
+    """Delete an object by @id."""
+    path = _get_object_path(object_id)
+    if os.path.exists(path):
+        os.remove(path)
+        return True
+    return False
+
+def object_exists(object_id):
+    """Check if object exists by ID."""
+    path = _get_object_path(object_id)
+    return os.path.exists(path)
+
+>>> END FILE <<<
+
+>>> FILE: docs/architecture.md <<<
+# 1R-Micro Architecture
+
+**1R-Micro** is a minimal, modular, and embeddable semantic object server. It forms the core engine of the 1R-X ecosystem — enabling the creation, storage, linkage, and federation of JSON-LD objects across decentralized systems.
+
+---
+
+## 🎯 Design Goals
+
+* **Simplicity**: Easy to run anywhere — no dependencies, no complex setup.
+* **Extensibility**: Works across domains with custom object types and contexts.
+* **Federation-first**: Nodes can operate independently or exchange data with peers.
+* **Semantics over syntax**: Data objects have meaning, not just structure.
+* **Edge-ready**: Can run on laptops, sensors, and low-resource devices.
+
+---
+
+## 🧱 Core Components
+
+### 1. **Object Store**
+
+* Flat file storage (`object_store/`) or pluggable backend
+* Each object is a JSON-LD file with a unique `@id`
+* CRUD operations via REST
+
+### 2. **REST API** (Python Flask)
+
+| Method | Endpoint        | Description                 |
+| ------ | --------------- | --------------------------- |
+| GET    | `/objects`      | List all objects            |
+| GET    | `/objects/<id>` | Fetch object by ID          |
+| POST   | `/objects`      | Create a new object         |
+| PUT    | `/objects/<id>` | Update an object (optional) |
+| DELETE | `/objects/<id>` | Delete an object (optional) |
+
+### 3. **JSON-LD Model**
+
+* Built on the [W3C JSON-LD standard](https://www.w3.org/TR/json-ld11/)
+* Uses `@context`, `@type`, and `@id` to define objects
+* Extensible with domain vocabularies (cargo, climate, health, etc.)
+
+### 4. **Federation Module** *(planned)*
+
+* Peer discovery
+* Object replication and subscription
+* Webhook-based notifications
+
+### 5. **CLI & SDKs** *(planned)*
+
+* CLI for local operations and scripting
+* SDKs in TypeScript, Rust for apps, UIs, and sensors
+
+---
+
+## 🔄 Federation Model
+
+Every 1R-Micro node is:
+
+* **Autonomous**: Stores and serves its own objects
+* **Interoperable**: Can pull or push objects to other nodes
+* **Verifiable**: Object origins and changes are traceable
+
+Nodes may sync:
+
+* Periodically
+* On-demand (via API)
+* Via pub-sub hooks
+
+---
+
+## 🔗 Object Model
+
+Objects in 1R-Micro:
+
+* Always have a unique `@id`
+* May link to other objects via `@id` references
+* Use types and properties defined by their `@context`
+
+### Example
+
+```json
+{
+  "@context": "https://onerecord.iata.org/ns/cargo",
+  "@type": "Shipment",
+  "@id": "urn:1r-micro:abc123",
+  "origin": "JFK",
+  "destination": "FRA"
+}
+```
+
+---
+
+## 🧪 Runtime Behavior
+
+* Objects are stored as-is in the object store
+* Indexing (planned) will support efficient retrieval by type or relationship
+* Data remains inspectable, transferable, and semantically rich
+
+---
+
+## 📈 Planned Extensions
+
+* Event model (`/events`, pub-sub)
+* Secure object signing & verification
+* Typed query language (SPARQL-lite or JSON-Path)
+* Frontend graph viewer (via `1r-ui`)
+* Support for additional backends (e.g., SQLite, IPFS)
+
+---
+
+## 🧠 Why This Matters
+
+The architecture of 1R-Micro is intentionally small, transparent, and adaptable. It’s not a platform — it’s a tool you can embed, fork, remix, or federate, bringing semantic clarity to local and global data flows alike.
+
+**Build small. Connect big.**
+
+>>> END FILE <<<

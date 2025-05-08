@@ -1,6 +1,0 @@
-{
-  "@context": "https://example.org",
-  "@id": "urn:1r-micro-2:urn:1r-micro-1:urn:1r-micro:6aa1c603-3082-4b72-8027-e9c438cde48a",
-  "@type": "Test",
-  "name": "From A"
-}

@@ -1,6 +1,0 @@
-{
-  "@context": "https://example.org/context",
-  "@id": "urn:1r-micro-2:urn:1r-micro:950b505d-606a-4611-8d6b-47d946334e5e",
-  "@type": "Updatable",
-  "value": 20
-}

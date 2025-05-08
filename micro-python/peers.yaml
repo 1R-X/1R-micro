@@ -1,5 +1,0 @@
-peers:
-  - name: dev-node-2
-    base_url: http://localhost:5001
-  - name: test-node
-    base_url: http://localhost:5002
