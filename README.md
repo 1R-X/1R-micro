@@ -47,14 +47,14 @@ Each deployment can define its own schemas, contexts, and types. You can integra
 
 This repository hosts the **official reference implementation**:
 
-### 🐍 [`/micro-python`](./micro-python)
+### 🐍 [`/1R-micro-python`](./1R-micro-python)
 
 * Python + Flask
 * Flat file-based object store
 * REST API for CRUD, events, subscriptions, federation
 * Includes a simple in-browser frontend test app
 
-> See [`micro-python/README.md`](./micro-python/README.md) for usage and developer instructions.
+> See [`1R-micro-python/README.md`](./1R-micro-python/README.md) for usage and developer instructions.
 
 ---
 
